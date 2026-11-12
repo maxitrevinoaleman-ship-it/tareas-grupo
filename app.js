@@ -19,7 +19,14 @@
   const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
   const DIAS_CORTOS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
   const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-  const COLORES = ["#2f5d8a", "#8a3b3b", "#3d7a5a", "#8a6a2f", "#4f7d3a", "#5b4a8a", "#2f7a7a", "#7a3d6b", "#555f6d"];
+  // Color fijo de cada día (lunes a domingo)
+  const DIA_COLORES = ["#4f46e5", "#e11d48", "#0d9488", "#9333ea", "#ea580c", "#0284c7", "#be185d"];
+  const COLORES = ["#1d4ed8", "#9a3412", "#b91c1c", "#0e7490", "#6d28d9", "#a16207", "#047857", "#4d7c0f", "#a21caf", "#be123c", "#0f766e", "#4338ca"];
+  const iniciales = nombre => {
+    const p = nombre.replace(/\b(de|del|la|el|y|en)\b/gi, " ").trim().split(/\s+/).filter(Boolean);
+    if (nombre.length <= 4) return nombre.toUpperCase();
+    return (p.length > 1 ? p[0][0] + p[1][0] : nombre.slice(0, 2)).toUpperCase();
+  };
 
   const estado = {
     datos: { materias: [], tareas: [] },
@@ -170,7 +177,9 @@
     const tabs = [["semana", "Semana"], ["materias", "Materias"], ["calendario", "Calendario"]];
     const h = hoy();
     app.innerHTML = `
-      <header class="topbar"><div class="topbar-inner">
+      <header class="topbar">
+        <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="ring"></span>
+        <div class="topbar-inner">
         <div class="title-row">
           <div>
             <h1>${esc(CFG.nombreGrupo)}${EDITOR ? '<span class="badge">Editor</span>' : ""}</h1>
@@ -226,8 +235,8 @@
           if (!visibles[i]) return "";
           const s = iso(d);
           const cls = s === h ? " is-today" : s < h ? " is-past" : "";
-          return `<div class="week-col${cls}">
-            <div class="week-head"><div class="day">${DIAS[i]}</div><div class="date">${d.getDate()} de ${MESES[d.getMonth()]}${s === h ? " · hoy" : ""}</div></div>
+          return `<div class="week-col${cls}" style="--d:${DIA_COLORES[i]}">
+            <div class="week-head"><div class="day">${DIAS[i]}</div><div class="date">${d.getDate()} de ${MESES[d.getMonth()]}</div><div class="num">${d.getDate()}</div></div>
             <div class="week-body">${porDia[i].length ? porDia[i].map(t => tarjeta(t)).join("") : `<div class="empty">${s <= h ? "—" : "Sin tareas"}</div>`}</div>
           </div>`;
         }).join("")}
@@ -245,8 +254,8 @@
       return `<div class="section-head">
           <div class="nav-group"><button class="btn btn-sm" data-volver>‹ Materias</button></div>
         </div>
-        <div class="panel subject-detail" style="border-top:4px solid ${esc(m.color)}">
-          <div class="section-head" style="padding:14px 14px 0;margin:0">
+        <div class="panel subject-detail" style="--c:${esc(m.color)}">
+          <div class="subject-hero">
             <div><h2>${esc(m.nombre)}</h2><div class="meta">${pend.length} ${pend.length === 1 ? "tarea pendiente" : "tareas pendientes"}</div></div>
             ${EDITOR ? `<button class="btn btn-sm" data-accion="nueva" data-materia="${esc(m.nombre)}">+ Tarea de ${esc(m.nombre)}</button>` : ""}
           </div>
@@ -259,6 +268,7 @@
       ${materias.length ? `<div class="subjects">${materias.map(m => {
         const n = tareas.filter(t => t.materia === m.nombre && pendiente(t)).length;
         return `<button class="subject-card" style="--c:${esc(m.color)}" data-abrir-materia="${esc(m.nombre)}">
+          <div class="ico">${esc(iniciales(m.nombre))}</div>
           <div class="name">${esc(m.nombre)}</div>
           <div class="count">${n ? `${n} ${n === 1 ? "pendiente" : "pendientes"}` : "Sin pendientes"}</div>
         </button>`;
@@ -286,12 +296,12 @@
         </div>
       </div>
       <div class="panel cal">
-        ${DIAS_CORTOS.map(d => `<div class="cal-dow">${d}</div>`).join("")}
+        ${DIAS_CORTOS.map((d, i) => `<div class="cal-dow" style="--d:${DIA_COLORES[i]}">${d}</div>`).join("")}
         ${celdas.map(d => {
           const s = iso(d);
           const lista = ordenar(estado.datos.tareas.filter(t => t.entrega === s));
           const cls = d.getMonth() !== primero.getMonth() ? " other" : s === h ? " today" : "";
-          return `<div class="cal-day${cls}" data-dia="${s}">
+          return `<div class="cal-day${cls}" data-dia="${s}" style="--d:${DIA_COLORES[diaSemana(d)]}">
             <div class="cal-num">${d.getDate()}</div>
             ${lista.map(t => `<button class="chip${pendiente(t) ? "" : " done"}" style="--c:${esc(colorDe(t.materia))}" data-tarea="${esc(t.id)}" title="${esc(t.materia)}: ${esc(t.titulo)}">${esc(t.titulo)}</button>`).join("")}
           </div>`;
@@ -317,7 +327,7 @@
     if (!t) return;
     const estadoTxt = pendiente(t) ? "Pendiente" : "Ya es día de entrega o pasó";
     dialogo(`
-      <div class="dlg-head" style="border-top:4px solid ${esc(colorDe(t.materia))};border-radius:10px 10px 0 0">${esc(t.titulo)}</div>
+      <div class="dlg-head" style="--c:${esc(colorDe(t.materia))}">${esc(t.titulo)}</div>
       <div class="dlg-body">
         <div class="detail-meta"><strong>${esc(t.materia)}</strong> · Entrega: ${fechaLarga(t.entrega)} · ${estadoTxt}</div>
         ${t.descripcion ? `<div class="detail-desc">${esc(t.descripcion)}</div>` : '<div class="detail-meta">Sin descripción.</div>'}
@@ -340,7 +350,7 @@
   function verDia(s) {
     const lista = ordenar(estado.datos.tareas.filter(t => t.entrega === s));
     dialogo(`
-      <div class="dlg-head">${fechaLarga(s)}</div>
+      <div class="dlg-head" style="--c:${DIA_COLORES[diaSemana(deIso(s))]}">${fechaLarga(s)}</div>
       <div class="dlg-body">${lista.length ? lista.map(t => tarjeta(t, { desc: true })).join("") : '<div class="empty">No hay entregas este día.</div>'}</div>
       <div class="dlg-foot">
         ${EDITOR ? `<button class="btn" data-nueva-dia>+ Tarea para este día</button>` : ""}

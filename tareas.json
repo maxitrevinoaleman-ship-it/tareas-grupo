@@ -1,12 +1,14 @@
 {
   "materias": [
-    { "nombre": "Matemáticas", "color": "#2f5d8a" },
-    { "nombre": "Español", "color": "#8a3b3b" },
-    { "nombre": "Inglés", "color": "#3d7a5a" },
-    { "nombre": "Historia", "color": "#8a6a2f" },
-    { "nombre": "Biología", "color": "#4f7d3a" },
-    { "nombre": "Física", "color": "#5b4a8a" },
-    { "nombre": "Química", "color": "#2f7a7a" }
+    { "nombre": "Matemáticas", "color": "#1d4ed8" },
+    { "nombre": "Historia", "color": "#9a3412" },
+    { "nombre": "Español", "color": "#b91c1c" },
+    { "nombre": "Inglés", "color": "#0e7490" },
+    { "nombre": "Química", "color": "#6d28d9" },
+    { "nombre": "FCE", "color": "#a16207" },
+    { "nombre": "Educación Financiera", "color": "#047857" },
+    { "nombre": "Vida Saludable", "color": "#4d7c0f" },
+    { "nombre": "Robótica", "color": "#a21caf" }
   ],
   "tareas": []
 }
