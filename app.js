@@ -328,7 +328,8 @@
     const d = document.createElement("dialog");
     d.innerHTML = html;
     document.body.appendChild(d);
-    d.addEventListener("close", () => d.remove());
+    // Se quita del DOM después de la animación de salida (ver CSS de dialog).
+    d.addEventListener("close", () => setTimeout(() => d.remove(), 350));
     d.addEventListener("click", e => { if (e.target === d) d.close(); });
     d.querySelectorAll("[data-cerrar]").forEach(b => b.addEventListener("click", () => d.close()));
     if (alAbrir) alAbrir(d);
@@ -540,6 +541,30 @@
         render();
         break;
     }
+  });
+
+  // Deslizar o flechas cambian de semana (Semana) o de mes (Calendario).
+  function navegar(dir) {
+    if (estado.tab === "semana") estado.semana += dir;
+    else if (estado.tab === "calendario") estado.mes += dir;
+    else return;
+    if (navigator.vibrate) navigator.vibrate(6);
+    animarVista = true; render();
+  }
+  let gesto = null;
+  app.addEventListener("pointerdown", e => { gesto = { x: e.clientX, y: e.clientY, t: Date.now() }; });
+  app.addEventListener("pointerup", e => {
+    if (!gesto) return;
+    const dx = e.clientX - gesto.x, dy = e.clientY - gesto.y, dt = Date.now() - gesto.t;
+    gesto = null;
+    // Solo gestos claramente horizontales y rápidos, para no estorbar el scroll vertical.
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 700) navegar(dx < 0 ? 1 : -1);
+  });
+  app.addEventListener("pointercancel", () => { gesto = null; });
+  document.addEventListener("keydown", e => {
+    if (document.querySelector("dialog[open]") || e.target.closest("input, textarea, select")) return;
+    if (e.key === "ArrowLeft") navegar(-1);
+    else if (e.key === "ArrowRight") navegar(1);
   });
 
   // Al cambiar de día (o al volver a la pestaña) se actualiza lo pendiente.
