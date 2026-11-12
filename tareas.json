@@ -1,14 +1,50 @@
 {
   "materias": [
-    { "nombre": "Matemáticas", "color": "#1d4ed8" },
-    { "nombre": "Historia", "color": "#9a3412" },
-    { "nombre": "Español", "color": "#b91c1c" },
-    { "nombre": "Inglés", "color": "#0e7490" },
-    { "nombre": "Química", "color": "#6d28d9" },
-    { "nombre": "FCE", "color": "#a16207" },
-    { "nombre": "Educación Financiera", "color": "#047857" },
-    { "nombre": "Vida Saludable", "color": "#4d7c0f" },
-    { "nombre": "Robótica", "color": "#a21caf" }
+    {
+      "nombre": "Matemáticas",
+      "color": "#1d4ed8"
+    },
+    {
+      "nombre": "Historia",
+      "color": "#9a3412"
+    },
+    {
+      "nombre": "Español",
+      "color": "#b91c1c"
+    },
+    {
+      "nombre": "Inglés",
+      "color": "#0e7490"
+    },
+    {
+      "nombre": "Química",
+      "color": "#6d28d9"
+    },
+    {
+      "nombre": "FCE",
+      "color": "#a16207"
+    },
+    {
+      "nombre": "Educación Financiera",
+      "color": "#047857"
+    },
+    {
+      "nombre": "Vida Saludable",
+      "color": "#4d7c0f"
+    },
+    {
+      "nombre": "Robótica",
+      "color": "#a21caf"
+    }
   ],
-  "tareas": []
+  "tareas": [
+    {
+      "id": "mwe61vjxvu1df",
+      "creada": "2026-11-12T23:15:36.573Z",
+      "titulo": "ok",
+      "materia": "Matemáticas",
+      "entrega": "2026-11-13",
+      "descripcion": "ok"
+    }
+  ]
 }
