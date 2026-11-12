@@ -91,7 +91,11 @@ input, select, textarea { font: inherit; color: inherit; }
 .topbar .ring {
   position: absolute; width: 90px; height: 90px; left: -30px; bottom: -30px; border: 14px solid rgba(255,255,255,.12); border-radius: 50%;
 }
-.topbar-inner { position: relative; max-width: 1180px; margin: 0 auto; padding: 22px 16px 14px; }
+.topbar-inner {
+  position: relative; max-width: 1180px; margin: 0 auto;
+  /* deja espacio para la barra del celular cuando se abre como app */
+  padding: calc(22px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 14px max(16px, env(safe-area-inset-left, 0px));
+}
 .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .title-row h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
 .subtitle { margin-top: 2px; font-size: 14px; color: rgba(255,255,255,.78); }
