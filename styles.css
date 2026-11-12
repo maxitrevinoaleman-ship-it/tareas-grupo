@@ -366,6 +366,25 @@ dialog:not([open])::backdrop { background-color: rgba(17, 15, 45, 0); }
 .chip:not(.done):hover { transform: translateY(-1px) scale(1.04); }
 .chip:not(.done):active { transform: scale(.92); }
 
+/* Barra de pestañas: pastilla deslizante */
+.tabs { position: relative; }
+.tab { position: relative; z-index: 1; }
+.tab.active { background: transparent; color: var(--head-2); }
+.tabs .pill {
+  position: absolute; left: 0; top: 4px; bottom: 4px; z-index: 0; pointer-events: none;
+  border-radius: 999px; background: #fff; box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+  transition: transform .7s var(--spring), width .7s var(--spring);
+}
+
+/* Interruptor: rebote al cambiar de estado */
+@keyframes switch-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(.86); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.switch.pop { animation: switch-pop .6s var(--spring); }
+
 /* Escritorio: contención de layout para que cada animación recalcule solo su caja.
    No se usa "paint" porque recortaría las sombras y las formas decorativas. */
 .task, .week-col, .cal-day, .subject-card, .chip { contain: layout style; }

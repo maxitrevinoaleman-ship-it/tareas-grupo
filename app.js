@@ -20,6 +20,8 @@
   let BLUR_ON = localStorage.getItem(LS_BLUR) !== "0";
   document.documentElement.classList.toggle("no-blur", !BLUR_ON);
   let animarVista = false;   // true solo al cambiar de pestaña/semana/mes
+  let blurPop = false;       // true solo en el render que sigue a cambiar el interruptor
+  let pillPrev = null;       // posición de la pastilla de pestañas en el render anterior
   let cargadoAlguna = false;
 
   const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
@@ -203,10 +205,29 @@
       </div></header>
       <main class="${animarVista ? "swap" : ""}">${avisos()}${estado.cargando ? '<div class="notice">Cargando tareas…</div>' : estado.error ? `<div class="notice warn">${esc(estado.error)}</div>` : vista()}</main>`;
     animarVista = false;
+
+    // Pastilla deslizante bajo la pestaña activa; se desliza desde la pestaña anterior.
+    const nav = app.querySelector(".tabs");
+    const act = nav && nav.querySelector(".tab.active");
+    if (act) {
+      const pill = document.createElement("span");
+      pill.className = "pill";
+      nav.prepend(pill);
+      const destino = { x: act.offsetLeft, w: act.offsetWidth };
+      const origen = pillPrev && pillPrev.tab !== estado.tab ? pillPrev : destino;
+      pill.style.transition = "none";
+      pill.style.transform = `translateX(${origen.x}px)`;
+      pill.style.width = `${origen.w}px`;
+      void pill.offsetWidth; // fuerza un reflow para que la transición arranque desde el origen
+      pill.style.transition = "";
+      pill.style.transform = `translateX(${destino.x}px)`;
+      pill.style.width = `${destino.w}px`;
+      pillPrev = { tab: estado.tab, ...destino };
+    }
   }
 
   function botonBlur() {
-    return `<button class="btn btn-ghost-light switch" data-accion="blur" aria-pressed="${BLUR_ON}" title="Activa o desactiva el desenfoque">` +
+    return `<button class="btn btn-ghost-light switch${blurPop ? " pop" : ""}" data-accion="blur" aria-pressed="${BLUR_ON}" title="Activa o desactiva el desenfoque">` +
       `<span class="sw" aria-hidden="true"></span>Blur</button>`;
   }
 
@@ -538,7 +559,7 @@
         BLUR_ON = !BLUR_ON;
         escribirLS(LS_BLUR, BLUR_ON ? "1" : "0");
         document.documentElement.classList.toggle("no-blur", !BLUR_ON);
-        render();
+        blurPop = true; render(); blurPop = false;
         break;
     }
   });
