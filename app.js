@@ -15,6 +15,12 @@
   const LS_TOKEN = "tareas-token";
   const LS_LOCAL = "tareas-datos-local";
   const LS_TAB = "tareas-pestana";
+  const LS_BLUR = "tareas-blur";
+  // Efecto blur activado por defecto; el interruptor lo guarda en este navegador.
+  let BLUR_ON = localStorage.getItem(LS_BLUR) !== "0";
+  document.documentElement.classList.toggle("no-blur", !BLUR_ON);
+  let animarVista = false;   // true solo al cambiar de pestaña/semana/mes
+  let cargadoAlguna = false;
 
   const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
   const DIAS_CORTOS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -111,6 +117,7 @@
       estado.error = "No se pudieron cargar las tareas. Revisa tu conexión e inténtalo de nuevo.";
     }
     estado.cargando = false;
+    animarVista = !cargadoAlguna; cargadoAlguna = true;
     render();
   }
 
@@ -189,11 +196,18 @@
             <button class="btn btn-light" data-accion="nueva">+ Nueva tarea</button>
             <button class="btn btn-ghost-light" data-accion="materias">Materias</button>
             <button class="btn btn-ghost-light" data-accion="conexion">Conexión</button>
-          </div>` : `<div class="actions"><button class="btn btn-ghost-light" data-accion="recargar">Actualizar</button></div>`}
+            ${botonBlur()}
+          </div>` : `<div class="actions"><button class="btn btn-ghost-light" data-accion="recargar">Actualizar</button>${botonBlur()}</div>`}
         </div>
         <nav class="tabs">${tabs.map(([k, n]) => `<button class="tab${estado.tab === k ? " active" : ""}" data-tab="${k}">${n}</button>`).join("")}</nav>
       </div></header>
-      <main>${avisos()}${estado.cargando ? '<div class="notice">Cargando tareas…</div>' : estado.error ? `<div class="notice warn">${esc(estado.error)}</div>` : vista()}</main>`;
+      <main class="${animarVista ? "swap" : ""}">${avisos()}${estado.cargando ? '<div class="notice">Cargando tareas…</div>' : estado.error ? `<div class="notice warn">${esc(estado.error)}</div>` : vista()}</main>`;
+    animarVista = false;
+  }
+
+  function botonBlur() {
+    return `<button class="btn btn-ghost-light switch" data-accion="blur" aria-pressed="${BLUR_ON}" title="Activa o desactiva el desenfoque">` +
+      `<span class="sw" aria-hidden="true"></span>Blur</button>`;
   }
 
   function avisos() {
@@ -507,18 +521,24 @@
     const el = e.target.closest("button, .cal-day");
     if (!el) return;
     const ds = el.dataset;
-    if (ds.tab) { estado.tab = ds.tab; escribirLS(LS_TAB, ds.tab); if (ds.tab !== "materias") estado.materia = null; render(); return; }
+    if (ds.tab) { estado.tab = ds.tab; escribirLS(LS_TAB, ds.tab); if (ds.tab !== "materias") estado.materia = null; animarVista = true; render(); return; }
     if (ds.tarea) { e.stopPropagation(); verTarea(ds.tarea); return; }
-    if (ds.semana !== undefined) { estado.semana = ds.semana === "0" ? 0 : estado.semana + Number(ds.semana); render(); return; }
-    if (ds.mes !== undefined) { estado.mes = ds.mes === "0" ? 0 : estado.mes + Number(ds.mes); render(); return; }
-    if (ds.abrirMateria) { estado.materia = ds.abrirMateria; render(); window.scrollTo(0, 0); return; }
-    if ("volver" in ds) { estado.materia = null; render(); return; }
+    if (ds.semana !== undefined) { estado.semana = ds.semana === "0" ? 0 : estado.semana + Number(ds.semana); animarVista = true; render(); return; }
+    if (ds.mes !== undefined) { estado.mes = ds.mes === "0" ? 0 : estado.mes + Number(ds.mes); animarVista = true; render(); return; }
+    if (ds.abrirMateria) { estado.materia = ds.abrirMateria; animarVista = true; render(); window.scrollTo(0, 0); return; }
+    if ("volver" in ds) { estado.materia = null; animarVista = true; render(); return; }
     if (ds.dia) { verDia(ds.dia); return; }
     switch (ds.accion) {
       case "nueva": formTarea(null, { materia: ds.materia }); break;
       case "materias": abrirMaterias(); break;
       case "conexion": abrirConexion(); break;
       case "recargar": cargar(); break;
+      case "blur":
+        BLUR_ON = !BLUR_ON;
+        escribirLS(LS_BLUR, BLUR_ON ? "1" : "0");
+        document.documentElement.classList.toggle("no-blur", !BLUR_ON);
+        render();
+        break;
     }
   });
 

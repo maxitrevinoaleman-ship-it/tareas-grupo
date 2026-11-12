@@ -15,6 +15,7 @@
   --blob-b: #fbbf24;
   --blob-c: #22d3ee;
   --tint: 10%;
+  --ease: cubic-bezier(.2, .8, .2, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -37,7 +38,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Google Sans Flex", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 15px;
@@ -45,9 +46,12 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
-/* Manchas de color de fondo */
+/* Manchas de color de fondo.
+   Con blur: radio de 40px (antes 60px) y capa propia (will-change + contain),
+   así el navegador las rasteriza una vez y solo las mueve. */
 body::before, body::after {
-  content: ""; position: fixed; z-index: -1; pointer-events: none; filter: blur(60px); opacity: .35;
+  content: ""; position: fixed; z-index: -1; pointer-events: none; opacity: .35;
+  filter: blur(40px); will-change: transform; contain: strict;
 }
 body::before {
   width: 420px; height: 380px; right: -120px; top: 260px; background: var(--blob-c);
@@ -57,6 +61,10 @@ body::after {
   width: 460px; height: 400px; left: -160px; bottom: -120px; background: var(--blob-a);
   border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
 }
+/* Sin blur: sin filtro, solo degradado radial (sin costo de render). */
+html.no-blur body::before, html.no-blur body::after { filter: none; border-radius: 50%; }
+html.no-blur body::before { background: radial-gradient(closest-side, var(--blob-c), transparent); }
+html.no-blur body::after { background: radial-gradient(closest-side, var(--blob-a), transparent); }
 button { font: inherit; cursor: pointer; }
 input, select, textarea { font: inherit; color: inherit; }
 
@@ -94,7 +102,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .btn {
   border: 1px solid var(--border); background: var(--surface); color: var(--text);
   padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600;
-  transition: transform .12s ease, filter .12s ease;
+  transition: transform .2s var(--ease), filter .2s var(--ease), background-color .25s var(--ease), color .25s var(--ease);
 }
 .btn:hover { filter: brightness(.96); }
 .btn:active { transform: scale(.97); }
@@ -112,6 +120,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .tab {
   background: transparent; border: 0; color: rgba(255,255,255,.82);
   padding: 8px 18px; font-size: 14px; font-weight: 600; border-radius: 999px; white-space: nowrap;
+  transition: background-color .3s var(--ease), color .3s var(--ease);
 }
 .tab:hover { color: #fff; background: rgba(255,255,255,.08); }
 .tab.active { background: #fff; color: var(--head-2); }
@@ -166,7 +175,7 @@ main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 56px; }
   padding: 11px 13px; color: #fff; background: var(--c, var(--accent));
   border-radius: 18px 6px 18px 6px;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--c, var(--accent)) 35%, transparent);
-  transition: transform .12s ease, box-shadow .12s ease;
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease);
 }
 .task:nth-child(even) { border-radius: 6px 18px 6px 18px; }
 .task::after {
@@ -186,7 +195,7 @@ main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 56px; }
   padding: 18px; background: linear-gradient(145deg, color-mix(in srgb, var(--c) 82%, #fff) 0%, var(--c) 60%);
   border-radius: 28px 10px 28px 10px; display: flex; flex-direction: column; justify-content: space-between;
   box-shadow: 0 8px 20px color-mix(in srgb, var(--c) 35%, transparent);
-  transition: transform .15s ease, box-shadow .15s ease;
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
 }
 .subject-card:nth-child(3n+2) { border-radius: 10px 28px 10px 28px; }
 .subject-card:nth-child(3n) { border-radius: 30px 30px 10px 30px; }
@@ -260,6 +269,7 @@ dialog {
   background: var(--surface); color: var(--text); box-shadow: 0 24px 60px rgba(15, 12, 50, .35);
 }
 dialog::backdrop { background: rgba(17, 15, 45, .55); backdrop-filter: blur(3px); }
+html.no-blur dialog::backdrop, html.no-blur .btn-ghost-light { backdrop-filter: none; }
 .dlg-head {
   position: relative; overflow: hidden; padding: 18px 22px; font-weight: 800; font-size: 18px; color: #fff;
   background: linear-gradient(125deg, var(--c, var(--head-2)), color-mix(in srgb, var(--c, var(--head-3)) 70%, #000));
@@ -304,4 +314,47 @@ label.field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; 
   .cal-num { font-size: 12px; width: 22px; height: 22px; }
   .list-row { grid-template-columns: 1fr; gap: 2px; }
   .list-row .when { padding-top: 0; }
+}
+
+/* ---------- Animaciones ---------- */
+@keyframes rise { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dlg-in { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 14px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* Solo al cambiar de pestaña, semana o mes (main.swap); "backwards" para no pisar el hover. */
+main.swap .week-col, main.swap .subject-card, main.swap .list-row, main.swap .task {
+  animation: rise .45s var(--ease) backwards;
+}
+main.swap .week-col:nth-child(2) { animation-delay: .04s; }
+main.swap .week-col:nth-child(3) { animation-delay: .08s; }
+main.swap .week-col:nth-child(4) { animation-delay: .12s; }
+main.swap .week-col:nth-child(5) { animation-delay: .16s; }
+main.swap .subject-card:nth-child(2) { animation-delay: .04s; }
+main.swap .subject-card:nth-child(3) { animation-delay: .08s; }
+main.swap .subject-card:nth-child(4) { animation-delay: .12s; }
+main.swap .cal-day { animation: fade .35s ease backwards; }
+
+dialog[open] { animation: dlg-in .3s var(--ease) both; }
+dialog[open]::backdrop { animation: fade .25s ease both; }
+.toast { animation: toast-in .35s var(--ease) both; }
+
+/* Interruptor de blur */
+.switch { display: inline-flex; align-items: center; gap: 8px; }
+.switch .sw {
+  position: relative; width: 34px; height: 20px; border-radius: 999px; background: rgba(255,255,255,.25);
+  transition: background-color .3s var(--ease);
+}
+.switch .sw::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; transition: transform .35s var(--ease);
+}
+.switch[aria-pressed="true"] .sw { background: #34d399; }
+.switch[aria-pressed="true"] .sw::after { transform: translateX(14px); }
+
+/* Respeta la preferencia de movimiento reducido del sistema */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important;
+  }
 }
