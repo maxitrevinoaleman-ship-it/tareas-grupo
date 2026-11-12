@@ -1,0 +1,10 @@
+// Configuración de la app.
+// Si publicas en GitHub Pages (https://USUARIO.github.io/REPOSITORIO/),
+// el usuario y el repositorio se detectan solos y puedes dejar esto vacío.
+window.CONFIG = {
+  nombreGrupo: "Tareas del grupo", // título que aparece arriba
+  usuario: "",                     // tu usuario de GitHub (opcional)
+  repositorio: "",                 // nombre del repositorio (opcional)
+  rama: "main",
+  archivo: "tareas.json"
+};
