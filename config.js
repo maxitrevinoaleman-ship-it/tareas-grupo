@@ -7,8 +7,7 @@ window.CONFIG = {
   repositorio: "",                 // nombre del repositorio (opcional)
   rama: "main",
   archivo: "tareas.json",
-  // Canal de avisos en ntfy.sh: cuando se publica una tarea nueva, llega
-  // una notificación a quien esté suscrito a este canal en la app ntfy.
-  // Déjalo vacío ("") para no mandar avisos.
-  avisos: "tareas-grupo-7i4hvnqu"
+  // App ID de OneSignal para las notificaciones al celular.
+  // Mientras esté vacío, el botón de notificaciones no aparece.
+  onesignalAppId: "7657c942-c264-4fa2-a6ac-51636c4e673d"
 };
