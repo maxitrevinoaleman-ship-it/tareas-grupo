@@ -70,7 +70,8 @@
     d = d && typeof d === "object" ? d : {};
     return {
       materias: Array.isArray(d.materias) ? d.materias.filter(m => m && m.nombre) : [],
-      tareas: Array.isArray(d.tareas) ? d.tareas.filter(t => t && t.id && t.entrega) : []
+      tareas: Array.isArray(d.tareas) ? d.tareas.filter(t => t && t.id && t.entrega) : [],
+      sorpresa: d.sorpresa && typeof d.sorpresa === "object" ? d.sorpresa : null
     };
   }
 
@@ -209,12 +210,13 @@
         <div class="topbar-inner">
         <div class="title-row">
           <div>
-            <h1>${esc(CFG.nombreGrupo)}${EDITOR ? '<span class="badge">Editor</span>' : ""}</h1>
+            <h1 class="titulo-app">${esc(CFG.nombreGrupo)}${EDITOR ? '<span class="badge">Editor</span>' : ""}</h1>
             <div class="subtitle">Hoy es ${fechaLarga(h).toLowerCase()} de ${deIso(h).getFullYear()}</div>
           </div>
           ${EDITOR ? `<div class="actions">
             <button class="btn btn-light" data-accion="nueva">+ Nueva tarea</button>
             <button class="btn btn-ghost-light" data-accion="materias">Materias</button>
+            <button class="btn btn-ghost-light" data-accion="sorpresa">Sorpresa</button>
             <button class="btn btn-ghost-light" data-accion="conexion">Conexión</button>
             ${botonAvisos()}
             ${botonBlur()}
@@ -587,6 +589,75 @@
     });
   }
 
+  // ---------- sorpresa del título (easter egg) ----------
+  const SORPRESA_BASE = { emoji: "🎉", titulo: "¡Lo lograste!", mensaje: "Gracias por usar la app del grupo.", color: "#4f46e5" };
+  function sorpresaActual() {
+    const s = { ...SORPRESA_BASE, ...(estado.datos.sorpresa || {}) };
+    if (!/^#[0-9a-f]{6}$/i.test(s.color)) s.color = SORPRESA_BASE.color;
+    return s;
+  }
+
+  function mostrarSorpresa() {
+    const s = sorpresaActual();
+    dialogo(`
+      <div class="dlg-body sorpresa" style="--c:${s.color}">
+        <div class="sorpresa-emoji">${esc(s.emoji)}</div>
+        <div class="sorpresa-titulo">${esc(s.titulo)}</div>
+        <div class="sorpresa-msg">${esc(s.mensaje)}</div>
+      </div>
+      <div class="dlg-foot"><span class="spacer"></span><button class="btn btn-primary" data-cerrar>Cerrar</button></div>`);
+  }
+
+  // Solo en el editor: personalizar lo que se ve al tocar el título cuatro veces.
+  function editarSorpresa() {
+    const s = sorpresaActual();
+    dialogo(`
+      <form method="dialog">
+        <div class="dlg-head">Sorpresa del título</div>
+        <div class="dlg-body">
+          <div class="detail-meta">Se abre cuando alguien toca cuatro veces el título de la app. Al publicar, todos la verán.</div>
+          <label class="field">Emoji
+            <input name="emoji" maxlength="4" value="${esc(s.emoji)}">
+          </label>
+          <label class="field">Título
+            <input name="titulo" maxlength="60" value="${esc(s.titulo)}">
+          </label>
+          <label class="field">Mensaje
+            <textarea name="mensaje" maxlength="300">${esc(s.mensaje)}</textarea>
+          </label>
+          <label class="field">Color
+            <input name="color" type="color" value="${esc(s.color)}">
+          </label>
+        </div>
+        <div class="dlg-foot">
+          <button type="button" class="btn" data-cerrar>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Publicar</button>
+        </div>
+      </form>`, d => {
+      d.querySelector("form").addEventListener("submit", e => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const nueva = {
+          emoji: String(f.get("emoji") || "").trim().slice(0, 4) || SORPRESA_BASE.emoji,
+          titulo: String(f.get("titulo") || "").trim().slice(0, 60) || SORPRESA_BASE.titulo,
+          mensaje: String(f.get("mensaje") || "").trim().slice(0, 300),
+          color: String(f.get("color") || SORPRESA_BASE.color)
+        };
+        d.close();
+        guardar(datos => { datos.sorpresa = nueva; }, "Edita la sorpresa del título");
+      });
+    });
+  }
+
+  // Cuatro toques en menos de dos segundos sobre el título abren la sorpresa.
+  let toquesTitulo = [];
+  app.addEventListener("click", e => {
+    if (!e.target.closest(".titulo-app")) return;
+    const ahora = Date.now();
+    toquesTitulo = toquesTitulo.filter(t => ahora - t < 2000).concat(ahora);
+    if (toquesTitulo.length >= 4) { toquesTitulo = []; mostrarSorpresa(); }
+  });
+
   // ---------- eventos ----------
   app.addEventListener("click", e => {
     const el = e.target.closest("button, .cal-day");
@@ -603,6 +674,7 @@
       case "nueva": formTarea(null, { materia: ds.materia }); break;
       case "materias": abrirMaterias(); break;
       case "conexion": abrirConexion(); break;
+      case "sorpresa": editarSorpresa(); break;
       case "avisos": abrirAvisos(); break;
       case "recargar": cargar(); break;
       case "blur":

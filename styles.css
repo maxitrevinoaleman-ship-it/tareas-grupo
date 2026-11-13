@@ -389,6 +389,21 @@ dialog:not([open])::backdrop { background-color: rgba(17, 15, 45, 0); }
 .chip:not(.done):hover { transform: translateY(-1px) scale(1.04); }
 .chip:not(.done):active { transform: scale(.92); }
 
+/* Easter egg: sorpresa del título */
+.titulo-app { cursor: pointer; user-select: none; -webkit-user-select: none; }
+.sorpresa {
+  text-align: center; padding: 34px 24px 16px;
+  background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--c) 32%, transparent), transparent 70%);
+}
+.sorpresa-emoji { font-size: 76px; line-height: 1; display: inline-block; animation: sorpresa-in 1s var(--spring) both; }
+.sorpresa-titulo { margin-top: 12px; font-size: 26px; font-weight: 700; color: var(--c); animation: rise .8s var(--spring) .15s backwards; }
+.sorpresa-msg { margin-top: 8px; font-size: 15px; white-space: pre-line; animation: rise .8s var(--spring) .3s backwards; }
+@keyframes sorpresa-in {
+  0% { transform: scale(0) rotate(-200deg); }
+  60% { transform: scale(1.25) rotate(14deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
 /* Barra de pestañas: pastilla deslizante */
 .tabs { position: relative; }
 .tab { position: relative; z-index: 1; }
