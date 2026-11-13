@@ -29,6 +29,43 @@
   const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
   // Color fijo de cada día (lunes a domingo)
   const DIA_COLORES = ["#4f46e5", "#e11d48", "#0d9488", "#9333ea", "#ea580c", "#0284c7", "#be185d"];
+
+  // Calendario escolar oficial SEP ciclo 2026-2027 (fechas aproximadas; confirmar con la escuela).
+  const RECESOS = [
+    { start: "2026-12-21", end: "2027-01-06", label: "Vacaciones de invierno" },
+    { start: "2027-03-22", end: "2027-04-04", label: "Vacaciones de primavera" }
+  ];
+  const CTE_DATES = ["2026-09-25", "2026-10-30", "2026-11-27", "2027-01-29", "2027-02-26", "2027-03-26", "2027-05-28", "2027-06-25"];
+  const SUSPENSION_DATES = [
+    { date: "2026-09-16", label: "Independencia de México" },
+    { date: "2026-11-02", label: "Día de Muertos" },
+    { date: "2026-11-16", label: "Revolución Mexicana" },
+    { date: "2027-02-01", label: "Aniversario de la Constitución" },
+    { date: "2027-03-15", label: "Natalicio de Benito Juárez" },
+    { date: "2027-05-05", label: "Suspensión de labores" }
+  ];
+  const EVENTO_INFO = {
+    cte: { etiqueta: "CTE", nombre: "Consejo Técnico", color: "#0d9488", aviso: "Día de Consejo Técnico" },
+    suspension: { etiqueta: "Sin clases", nombre: "Sin clases", color: "#e11d48", aviso: "Sin clases este día" },
+    receso: { etiqueta: "Receso", nombre: "Receso", color: "#64748b", aviso: "Periodo de receso" }
+  };
+  const ESCOLAR_BASE = [
+    ...RECESOS.map(r => ({ fecha: r.start, fin: r.end, type: "receso", label: r.label })),
+    ...CTE_DATES.map(f => ({ fecha: f, type: "cte", label: "Consejo Técnico Escolar" })),
+    ...SUSPENSION_DATES.map(s => ({ fecha: s.date, type: "suspension", label: s.label }))
+  ].sort((a, b) => a.fecha.localeCompare(b.fecha));
+  // Evento oficial de un día (los recesos cubren todo su rango).
+  const eventoBase = s => ESCOLAR_BASE.find(e => e.fin ? s >= e.fecha && s <= e.fin : e.fecha === s) || null;
+  // Evento de un día: oficial, o una suspensión que el grupo marcó desde el editor.
+  const eventoDe = s => eventoBase(s) || ((estado.datos.suspensiones || []).includes(s)
+    ? { fecha: s, type: "suspension", label: "Suspensión marcada por el grupo" } : null);
+  function proximosEventos(desde, n) {
+    const oficiales = ESCOLAR_BASE.filter(e => (e.fin || e.fecha) >= desde);
+    const manuales = (estado.datos.suspensiones || [])
+      .filter(s => s >= desde && !eventoBase(s))
+      .map(s => ({ fecha: s, type: "suspension", label: "Suspensión marcada por el grupo" }));
+    return [...oficiales, ...manuales].sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, n);
+  }
   const COLORES = ["#1d4ed8", "#9a3412", "#b91c1c", "#0e7490", "#6d28d9", "#a16207", "#047857", "#4d7c0f", "#a21caf", "#be123c", "#0f766e", "#4338ca"];
   const iniciales = nombre => {
     const p = nombre.replace(/\b(de|del|la|el|y|en)\b/gi, " ").trim().split(/\s+/).filter(Boolean);
@@ -71,7 +108,8 @@
     return {
       materias: Array.isArray(d.materias) ? d.materias.filter(m => m && m.nombre) : [],
       tareas: Array.isArray(d.tareas) ? d.tareas.filter(t => t && t.id && t.entrega) : [],
-      sorpresa: d.sorpresa && typeof d.sorpresa === "object" ? d.sorpresa : null
+      sorpresa: d.sorpresa && typeof d.sorpresa === "object" ? d.sorpresa : null,
+      suspensiones: Array.isArray(d.suspensiones) ? d.suspensiones.filter(s => /^\d{4}-\d{2}-\d{2}$/.test(s)) : []
     };
   }
 
@@ -437,12 +475,24 @@
           const s = iso(d);
           const lista = ordenar(estado.datos.tareas.filter(t => t.entrega === s));
           const cls = d.getMonth() !== primero.getMonth() ? " other" : s === h ? " today" : "";
-          return `<div class="cal-day${cls}" data-dia="${s}" style="--d:${DIA_COLORES[diaSemana(d)]}">
+          const ev = eventoDe(s);
+          const delMesActual = d.getMonth() === primero.getMonth();
+          return `<div class="cal-day${cls}${ev && delMesActual ? ` tipo-${ev.type}` : ""}" data-dia="${s}" style="--d:${DIA_COLORES[diaSemana(d)]}">
             <div class="cal-num">${d.getDate()}</div>
+            ${ev && delMesActual ? `<span class="cal-evt" style="--e:${EVENTO_INFO[ev.type].color}">${EVENTO_INFO[ev.type].etiqueta}</span>` : ""}
             ${lista.map(t => `<button class="chip${pendiente(t) ? "" : " done"}" style="--c:${esc(colorDe(t.materia))}" data-tarea="${esc(t.id)}" title="${esc(t.materia)}: ${esc(t.titulo)}">${esc(t.titulo)}</button>`).join("")}
           </div>`;
         }).join("")}
-      </div>`;
+      </div>
+      <div class="cal-leyenda">${Object.values(EVENTO_INFO).map(v => `<span style="--e:${v.color}"><i></i>${v.nombre}</span>`).join("")}</div>
+      <h3 class="subhead">Próximos eventos del calendario escolar</h3>
+      <div class="panel evt-lista">
+        ${proximosEventos(h, 6).map(e => `<div class="evt-row">
+          <span class="cal-evt" style="--e:${EVENTO_INFO[e.type].color}">${EVENTO_INFO[e.type].etiqueta}</span>
+          <div><b>${esc(e.label)}</b><div class="meta">${fechaLarga(e.fecha)}${e.fin ? ` – ${fechaLarga(e.fin)}` : ""}</div></div>
+        </div>`).join("") || '<div class="empty">No hay eventos próximos.</div>'}
+      </div>
+      <p class="cal-nota">Fechas aproximadas del calendario SEP 2026-2027. Confírmalas con tu escuela.</p>`;
   }
 
   // ---------- diálogos ----------
@@ -486,16 +536,31 @@
 
   function verDia(s) {
     const lista = ordenar(estado.datos.tareas.filter(t => t.entrega === s));
+    const ev = eventoDe(s);
+    const manual = (estado.datos.suspensiones || []).includes(s);
     dialogo(`
       <div class="dlg-head" style="--c:${DIA_COLORES[diaSemana(deIso(s))]}">${fechaLarga(s)}</div>
-      <div class="dlg-body">${lista.length ? lista.map(t => tarjeta(t, { desc: true })).join("") : '<div class="empty">No hay entregas este día.</div>'}</div>
+      <div class="dlg-body">
+        ${ev ? `<div class="evt-banner" style="--e:${EVENTO_INFO[ev.type].color}"><b>${esc(ev.label)}</b><span>${EVENTO_INFO[ev.type].aviso}</span></div>` : ""}
+        ${lista.length ? lista.map(t => tarjeta(t, { desc: true })).join("") : '<div class="empty">No hay entregas este día.</div>'}
+      </div>
       <div class="dlg-foot">
         ${EDITOR ? `<button class="btn" data-nueva-dia>+ Tarea para este día</button>` : ""}
+        ${EDITOR && !eventoBase(s) ? `<button class="btn" data-suspender>${manual ? "Quitar sin clases" : "Marcar sin clases"}</button>` : ""}
         <button class="btn btn-primary" data-cerrar>Cerrar</button>
       </div>`, d => {
       d.querySelectorAll("[data-tarea]").forEach(b => b.addEventListener("click", () => { d.close(); verTarea(b.dataset.tarea); }));
       const n = d.querySelector("[data-nueva-dia]");
       if (n) n.addEventListener("click", () => { d.close(); formTarea(null, { entrega: s }); });
+      const sp = d.querySelector("[data-suspender]");
+      if (sp) sp.addEventListener("click", () => {
+        d.close();
+        guardar(x => {
+          const set = new Set(x.suspensiones || []);
+          if (manual) set.delete(s); else set.add(s);
+          x.suspensiones = [...set].sort();
+        }, `${manual ? "Quitar" : "Marcar"} sin clases: ${s}`);
+      });
     });
   }
 

@@ -284,6 +284,31 @@ details summary { cursor: pointer; padding: 8px 0; }
 }
 .chip.done { opacity: .45; }
 
+/* Calendario escolar: CTE, suspensiones y recesos */
+.cal-day.tipo-cte:not(.other):not(.today) { background: color-mix(in srgb, #0d9488 14%, var(--surface)); }
+.cal-day.tipo-suspension:not(.other):not(.today) { background: color-mix(in srgb, #e11d48 12%, var(--surface)); }
+.cal-day.tipo-receso:not(.other):not(.today) { background: color-mix(in srgb, #64748b 16%, var(--surface)); }
+.cal-evt {
+  align-self: flex-start; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+  padding: 2px 7px; border-radius: 999px; background: var(--e); color: #fff; white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .cal-evt { font-size: 0; height: 6px; width: 100%; padding: 0; border-radius: 4px; }
+}
+.cal-leyenda { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 4px 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.cal-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.cal-leyenda i { width: 10px; height: 10px; border-radius: 50%; background: var(--e); display: inline-block; }
+.evt-lista { padding: 4px 16px; }
+.evt-row { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.evt-row:last-child { border-bottom: 0; }
+.evt-row .cal-evt { flex-shrink: 0; }
+.evt-banner {
+  display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; margin-bottom: 12px; border-radius: 16px;
+  background: color-mix(in srgb, var(--e) 16%, var(--surface)); border-left: 4px solid var(--e);
+}
+.evt-banner span { font-size: 13px; color: var(--muted); }
+.cal-nota { font-size: 12px; color: var(--muted); margin: 8px 4px 0; }
+
 /* Diálogos */
 dialog {
   border: 0; border-radius: 26px; padding: 0; width: min(520px, calc(100vw - 32px)); overflow: hidden;
