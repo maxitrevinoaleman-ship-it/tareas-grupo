@@ -162,6 +162,24 @@
     return false;
   }
 
+  // Manda una notificación a todos los suscritos al canal de ntfy.
+  async function notificar(t) {
+    if (!CFG.avisos || !CONECTADO) return;
+    const enlace = `https://${location.host}${location.pathname.replace(/editor\.html$/, "")}`;
+    try {
+      await fetch("https://ntfy.sh/", {
+        method: "POST",
+        body: JSON.stringify({
+          topic: CFG.avisos,
+          title: `Nueva tarea de ${t.materia}`,
+          message: `${t.titulo}\nEntrega: ${fechaLarga(t.entrega)}`,
+          tags: ["books"],
+          click: enlace
+        })
+      });
+    } catch { /* si falla el aviso, la tarea ya quedó publicada */ }
+  }
+
   // ---------- interfaz ----------
   const app = document.getElementById("app");
   let toastTimer;
@@ -198,8 +216,9 @@
             <button class="btn btn-light" data-accion="nueva">+ Nueva tarea</button>
             <button class="btn btn-ghost-light" data-accion="materias">Materias</button>
             <button class="btn btn-ghost-light" data-accion="conexion">Conexión</button>
+            ${botonAvisos()}
             ${botonBlur()}
-          </div>` : `<div class="actions"><button class="btn btn-ghost-light" data-accion="recargar">Actualizar</button>${botonBlur()}</div>`}
+          </div>` : `<div class="actions"><button class="btn btn-ghost-light" data-accion="recargar">Actualizar</button>${botonAvisos()}${botonBlur()}</div>`}
         </div>
         <nav class="tabs">${tabs.map(([k, n]) => `<button class="tab${estado.tab === k ? " active" : ""}" data-tab="${k}">${n}</button>`).join("")}</nav>
       </div></header>
@@ -229,6 +248,34 @@
   function botonBlur() {
     return `<button class="btn btn-ghost-light switch${blurPop ? " pop" : ""}" data-accion="blur" aria-pressed="${BLUR_ON}" title="Activa o desactiva el desenfoque">` +
       `<span class="sw" aria-hidden="true"></span>Blur</button>`;
+  }
+
+  function botonAvisos() {
+    return CFG.avisos ? `<button class="btn btn-ghost-light" data-accion="avisos">🔔 Avisos</button>` : "";
+  }
+
+  function abrirAvisos() {
+    const canal = CFG.avisos;
+    dialogo(`
+      <div class="dlg-head">🔔 Recibir avisos de tareas nuevas</div>
+      <div class="dlg-body">
+        <div style="font-size:14px">Cada vez que se publique una tarea nueva te llega una notificación al celular.</div>
+        <ol class="pasos">
+          <li>Instala la app gratis <strong>ntfy</strong>:
+            <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">Android</a> ·
+            <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener">iPhone</a></li>
+          <li>Ábrela y toca <strong>+</strong> (Subscribe to topic).</li>
+          <li>Escribe este canal y dale <strong>Subscribe</strong>:</li>
+        </ol>
+        <div class="topic"><code>${esc(canal)}</code><button type="button" class="btn btn-sm" data-copiar>Copiar</button></div>
+        <div class="help">En computadora puedes abrir <a href="https://ntfy.sh/${encodeURIComponent(canal)}" target="_blank" rel="noopener">ntfy.sh/${esc(canal)}</a> y activar las notificaciones del navegador.</div>
+      </div>
+      <div class="dlg-foot"><button class="btn btn-primary" data-cerrar>Listo</button></div>`, d => {
+      d.querySelector("[data-copiar]").addEventListener("click", async e => {
+        try { await navigator.clipboard.writeText(canal); e.target.textContent = "¡Copiado!"; }
+        catch { e.target.textContent = "Cópialo a mano"; }
+      });
+    });
   }
 
   function avisos() {
@@ -303,6 +350,7 @@
       ${materias.length ? `<div class="subjects">${materias.map(m => {
         const n = tareas.filter(t => t.materia === m.nombre && pendiente(t)).length;
         return `<button class="subject-card" style="--c:${esc(m.color)}" data-abrir-materia="${esc(m.nombre)}">
+          ${n ? `<span class="dot" aria-label="${n} ${n === 1 ? "tarea pendiente" : "tareas pendientes"}">${n}</span>` : ""}
           <div class="ico">${esc(iniciales(m.nombre))}</div>
           <div class="name">${esc(m.nombre)}</div>
           <div class="count">${n ? `${n} ${n === 1 ? "pendiente" : "pendientes"}` : "Sin pendientes"}</div>
@@ -438,7 +486,8 @@
           await guardar(x => { const y = x.tareas.find(z => z.id === t.id); if (y) Object.assign(y, datos); }, `Editar tarea: ${datos.titulo}`);
         } else {
           const nueva = Object.assign({ id: nuevoId(), creada: new Date().toISOString() }, datos);
-          await guardar(x => { x.tareas.push(nueva); }, `Nueva tarea: ${datos.materia} – ${datos.titulo}`);
+          const ok = await guardar(x => { x.tareas.push(nueva); }, `Nueva tarea: ${datos.materia} – ${datos.titulo}`);
+          if (ok) notificar(nueva);
         }
       });
     });
@@ -554,6 +603,7 @@
       case "nueva": formTarea(null, { materia: ds.materia }); break;
       case "materias": abrirMaterias(); break;
       case "conexion": abrirConexion(); break;
+      case "avisos": abrirAvisos(); break;
       case "recargar": cargar(); break;
       case "blur":
         BLUR_ON = !BLUR_ON;
