@@ -1,0 +1,33 @@
+# Cuando cambia tareas.json (alguien publicó desde el editor), busca las
+# tareas nuevas y manda una notificación a todos con OneSignal.
+name: Avisos de tareas nuevas
+
+on:
+  push:
+    branches: [main]
+    paths: [tareas.json]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: avisos
+  cancel-in-progress: false
+
+jobs:
+  avisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Mandar avisos
+        env:
+          ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
+          ANTES: ${{ github.event.before }}
+          AHORA: ${{ github.sha }}
+          SITIO: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+        run: node .github/scripts/avisar.mjs

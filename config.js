@@ -6,5 +6,8 @@ window.CONFIG = {
   usuario: "",                     // tu usuario de GitHub (opcional)
   repositorio: "",                 // nombre del repositorio (opcional)
   rama: "main",
-  archivo: "tareas.json"
+  archivo: "tareas.json",
+  // App ID de OneSignal para las notificaciones al celular.
+  // Mientras esté vacío, el botón de notificaciones no aparece.
+  onesignalAppId: ""
 };

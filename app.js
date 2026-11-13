@@ -162,6 +162,103 @@
     return false;
   }
 
+  // ---------- notificaciones (OneSignal) ----------
+  // Quien activa las notificaciones queda registrado en OneSignal. Cuando se
+  // publica una tarea nueva, una GitHub Action (.github/workflows/avisos.yml)
+  // le pide a OneSignal que mande el aviso a todos.
+  const PUSH_ON = !!(CFG.onesignalAppId && CONECTADO);
+  const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const instalada = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  let push = { listo: false, activo: false };
+
+  function estadoPush() {
+    if (esIOS && !instalada()) return "ios-instalar";
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) return "no-soportado";
+    if (Notification.permission === "denied") return "bloqueado";
+    if (!push.listo) return "cargando";
+    return push.activo ? "activo" : "inactivo";
+  }
+
+  function iniciarPush() {
+    if (!PUSH_ON || estadoPush() === "ios-instalar" || estadoPush() === "no-soportado") return;
+    const base = location.pathname.replace(/[^/]*$/, ""); // p. ej. "/tareas-grupo/"
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(async OneSignal => {
+      try {
+        await OneSignal.init({
+          appId: CFG.onesignalAppId,
+          serviceWorkerPath: base.slice(1) + "OneSignalSDKWorker.js",
+          serviceWorkerParam: { scope: base },
+          notifyButton: { enable: false }
+        });
+        const actualizar = () => {
+          push = { listo: true, activo: !!OneSignal.User.PushSubscription.optedIn && Notification.permission === "granted" };
+          render();
+        };
+        OneSignal.User.PushSubscription.addEventListener("change", actualizar);
+        OneSignal.Notifications.addEventListener("permissionChange", actualizar);
+        actualizar();
+      } catch (e) {
+        console.warn("OneSignal no se pudo iniciar", e);
+      }
+    });
+    const s = document.createElement("script");
+    s.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+
+  function botonPush() {
+    if (!PUSH_ON) return "";
+    const activo = estadoPush() === "activo";
+    return `<button class="btn btn-ghost-light${activo ? " push-on" : ""}" data-accion="push">${activo ? "🔔 Avisos activos" : "🔔 Activar avisos"}</button>`;
+  }
+
+  function abrirPush() {
+    const st = estadoPush();
+    const textos = {
+      "ios-instalar": `En iPhone las notificaciones solo funcionan con la app instalada:<ol class="pasos">
+          <li>Abre esta página en <strong>Safari</strong>.</li>
+          <li>Toca <strong>Compartir</strong> (el cuadrito con la flecha) → <strong>Agregar a inicio</strong>.</li>
+          <li>Abre la app desde el ícono nuevo y vuelve a tocar <strong>🔔 Activar avisos</strong>.</li></ol>
+          <div class="help">Necesitas iOS 16.4 o más nuevo.</div>`,
+      "no-soportado": "Este navegador no permite notificaciones. Prueba con Chrome en Android, o instala la app en iPhone.",
+      "bloqueado": "Bloqueaste las notificaciones para esta página. Actívalas en la configuración del navegador (ícono del candado junto a la dirección → Notificaciones → Permitir) y vuelve a intentarlo.",
+      "cargando": "Preparando las notificaciones… espera unos segundos y vuelve a intentarlo.",
+      "inactivo": "Te llegará una notificación al celular cada vez que se publique una tarea nueva, aunque tengas la app cerrada.",
+      "activo": "Las notificaciones están activas en este dispositivo. Te llegará un aviso con cada tarea nueva."
+    };
+    dialogo(`
+      <div class="dlg-head">🔔 Avisos de tareas nuevas</div>
+      <div class="dlg-body"><div style="font-size:14px">${textos[st]}</div></div>
+      <div class="dlg-foot">
+        ${st === "activo" ? '<button class="btn btn-danger" data-apagar>Desactivar</button><span class="spacer"></span>' : ""}
+        <button class="btn" data-cerrar>Cerrar</button>
+        ${st === "inactivo" ? '<button class="btn btn-primary" data-activar>Activar notificaciones</button>' : ""}
+      </div>`, d => {
+      const a = d.querySelector("[data-activar]");
+      if (a) a.addEventListener("click", async () => {
+        const OS = window.OneSignal;
+        if (!OS) return;
+        try {
+          // Se pide el permiso dentro del toque (iPhone lo exige).
+          await OS.Notifications.requestPermission();
+          if (Notification.permission === "granted") {
+            await OS.User.PushSubscription.optIn();
+            d.close(); aviso("¡Listo! Te llegarán los avisos de tareas nuevas.");
+          } else {
+            d.close(); aviso("No se activaron. Tienes que tocar «Permitir».", true, 5000);
+          }
+        } catch { d.close(); aviso("No se pudieron activar. Inténtalo de nuevo.", true); }
+      });
+      const o = d.querySelector("[data-apagar]");
+      if (o) o.addEventListener("click", async () => {
+        try { await window.OneSignal.User.PushSubscription.optOut(); } catch {}
+        d.close(); aviso("Avisos desactivados en este dispositivo.");
+      });
+    });
+  }
+
   // ---------- interfaz ----------
   const app = document.getElementById("app");
   let toastTimer;
@@ -198,8 +295,9 @@
             <button class="btn btn-light" data-accion="nueva">+ Nueva tarea</button>
             <button class="btn btn-ghost-light" data-accion="materias">Materias</button>
             <button class="btn btn-ghost-light" data-accion="conexion">Conexión</button>
+            ${botonPush()}
             ${botonBlur()}
-          </div>` : `<div class="actions"><button class="btn btn-ghost-light" data-accion="recargar">Actualizar</button>${botonBlur()}</div>`}
+          </div>` : `<div class="actions"><button class="btn btn-ghost-light" data-accion="recargar">Actualizar</button>${botonPush()}${botonBlur()}</div>`}
         </div>
         <nav class="tabs">${tabs.map(([k, n]) => `<button class="tab${estado.tab === k ? " active" : ""}" data-tab="${k}">${n}</button>`).join("")}</nav>
       </div></header>
@@ -554,7 +652,8 @@
     switch (ds.accion) {
       case "nueva": formTarea(null, { materia: ds.materia }); break;
       case "materias": abrirMaterias(); break;
-      case "conexion": abrirConexion(); break;      case "recargar": cargar(); break;
+      case "conexion": abrirConexion(); break;
+      case "push": abrirPush(); break;      case "recargar": cargar(); break;
       case "blur":
         BLUR_ON = !BLUR_ON;
         escribirLS(LS_BLUR, BLUR_ON ? "1" : "0");
@@ -599,4 +698,5 @@
   setInterval(() => { if (hoy() !== ultimoDia) { ultimoDia = hoy(); render(); } }, 60 * 1000);
 
   cargar();
+  iniciarPush();
 })();
