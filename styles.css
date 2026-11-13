@@ -293,7 +293,7 @@ details summary { cursor: pointer; padding: 8px 0; }
   padding: 2px 7px; border-radius: 999px; background: var(--e); color: #fff; white-space: nowrap;
 }
 @media (max-width: 760px) {
-  .cal-evt { font-size: 0; height: 6px; width: 100%; padding: 0; border-radius: 4px; }
+  .cal-day .cal-evt { font-size: 0; height: 6px; width: 100%; padding: 0; border-radius: 4px; }
 }
 .cal-leyenda { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 4px 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
 .cal-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
@@ -302,6 +302,9 @@ details summary { cursor: pointer; padding: 8px 0; }
 .evt-row { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .evt-row:last-child { border-bottom: 0; }
 .evt-row .cal-evt { flex-shrink: 0; }
+.evt-row > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.evt-lista, .cal-leyenda { box-sizing: border-box; max-width: 100%; }
+.cal-leyenda { justify-content: center; }
 .evt-banner {
   display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; margin-bottom: 12px; border-radius: 16px;
   background: color-mix(in srgb, var(--e) 16%, var(--surface)); border-left: 4px solid var(--e);
