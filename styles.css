@@ -236,15 +236,7 @@ main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 56px; }
 }
 @keyframes dot-in { from { transform: scale(0); } to { transform: scale(1); } }
 .subject-detail { overflow: hidden; }
-
-/* Diálogo de avisos */
-.topic {
-  display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 12px;
-  background: var(--surface-2); border: 1px solid var(--border); font-weight: 700; word-break: break-all;
-}
-.topic code { flex: 1; font-size: 14px; }
 dialog a { color: var(--accent); font-weight: 600; }
-.pasos { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .subject-hero {
   position: relative; overflow: hidden; color: #fff; padding: 22px 20px 26px;
   background: linear-gradient(135deg, var(--c) 0%, color-mix(in srgb, var(--c) 70%, #000) 100%);
