@@ -9,5 +9,5 @@ window.CONFIG = {
   archivo: "tareas.json",
   // App ID de OneSignal para las notificaciones al celular.
   // Mientras esté vacío, el botón de notificaciones no aparece.
-  onesignalAppId: ""
+  onesignalAppId: "7657c942-c264-4fa2-a6ac-51636c4e673d"
 };
