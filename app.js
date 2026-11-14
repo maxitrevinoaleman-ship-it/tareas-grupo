@@ -487,10 +487,17 @@
       <div class="cal-leyenda">${Object.values(EVENTO_INFO).map(v => `<span style="--e:${v.color}"><i></i>${v.nombre}</span>`).join("")}</div>
       <h3 class="subhead">Próximos eventos del calendario escolar</h3>
       <div class="panel evt-lista">
-        ${proximosEventos(h, 6).map(e => `<div class="evt-row">
-          <span class="cal-evt" style="--e:${EVENTO_INFO[e.type].color}">${EVENTO_INFO[e.type].etiqueta}</span>
-          <div><b>${esc(e.label)}</b><div class="meta">${fechaLarga(e.fecha)}${e.fin ? ` – ${fechaLarga(e.fin)}` : ""}</div></div>
-        </div>`).join("") || '<div class="empty">No hay eventos próximos.</div>'}
+        ${proximosEventos(h, 6).map((e, i) => {
+          const f = deIso(e.fecha);
+          return `<div class="evt-row" style="--e:${EVENTO_INFO[e.type].color}; --i:${i}">
+            <div class="evt-fecha"><span class="evt-dia">${f.getDate()}</span><span class="evt-mes">${MESES[f.getMonth()].slice(0, 3)}</span></div>
+            <div class="evt-info">
+              <span class="evt-tag">${EVENTO_INFO[e.type].nombre}</span>
+              <b class="evt-label">${esc(e.label)}</b>
+              <div class="meta">${fechaLarga(e.fecha)}${e.fin ? ` – ${fechaLarga(e.fin)}` : ""}</div>
+            </div>
+          </div>`;
+        }).join("") || '<div class="empty">No hay eventos próximos.</div>'}
       </div>
       <p class="cal-nota">Fechas aproximadas del calendario SEP 2026-2027. Confírmalas con tu escuela.</p>`;
   }

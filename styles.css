@@ -298,13 +298,25 @@ details summary { cursor: pointer; padding: 8px 0; }
 .cal-leyenda { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 4px 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
 .cal-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
 .cal-leyenda i { width: 10px; height: 10px; border-radius: 50%; background: var(--e); display: inline-block; }
-.evt-lista { padding: 4px 16px; }
-.evt-row { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.evt-row:last-child { border-bottom: 0; }
-.evt-row .cal-evt { flex-shrink: 0; }
-.evt-row > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.evt-lista, .cal-leyenda { box-sizing: border-box; max-width: 100%; }
-.cal-leyenda { justify-content: center; }
+.evt-lista { padding: 10px; display: grid; gap: 10px; background: transparent; box-shadow: none; border: 0; }
+.evt-row {
+  display: flex; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 20px;
+  background: color-mix(in srgb, var(--e) 10%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--e) 26%, transparent);
+  transition: transform .45s var(--spring), box-shadow .3s var(--ease);
+}
+.evt-row:hover { transform: translateX(6px) scale(1.01); box-shadow: 0 10px 22px color-mix(in srgb, var(--e) 28%, transparent); }
+main.swap .evt-row { animation: rise .6s var(--spring) backwards; animation-delay: calc(var(--i, 0) * 70ms); }
+.evt-fecha {
+  flex-shrink: 0; width: 60px; height: 64px; border-radius: 16px; background: var(--e); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 6px 14px color-mix(in srgb, var(--e) 40%, transparent);
+}
+.evt-dia { font-size: 24px; font-weight: 800; line-height: 1; }
+.evt-mes { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; opacity: .92; }
+.evt-info { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.evt-tag { display: inline-block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--e); }
+.evt-label { display: block; font-size: 16px; margin: 3px 0 2px; }
+.cal-leyenda { box-sizing: border-box; max-width: 100%; justify-content: center; }
 .evt-banner {
   display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; margin-bottom: 12px; border-radius: 16px;
   background: color-mix(in srgb, var(--e) 16%, var(--surface)); border-left: 4px solid var(--e);
