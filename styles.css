@@ -490,3 +490,62 @@ button, .cal-day { -webkit-tap-highlight-color: transparent; touch-action: manip
     animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important;
   }
 }
+
+/* ============ Rediseño de escritorio (≥1024px) ============
+   Barra lateral fija con la marca, los botones y las pestañas en vertical;
+   el contenido ocupa el resto con más aire. El móvil no cambia. */
+@media (min-width: 1024px) {
+  .topbar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 272px; z-index: 5;
+    display: flex; flex-direction: column; border-radius: 0 32px 32px 0; overflow: hidden;
+  }
+  .topbar .blob, .topbar .ring { opacity: .18; }
+  .topbar .b2, .topbar .b3 { display: none; }
+  .topbar .b1 { width: 320px; height: 260px; right: -170px; top: -110px; }
+  .topbar-inner {
+    position: relative; z-index: 1; max-width: none; margin: 0; height: 100%; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 28px; box-sizing: border-box;
+    padding: 36px 24px 28px;
+  }
+  .title-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .title-row h1 { font-size: 28px; line-height: 1.15; }
+  .title-row h1 .badge { margin-left: 8px; }
+  .subtitle { font-size: 13px; }
+  .actions { flex-direction: column; align-items: stretch; gap: 8px; }
+  .actions .btn, .actions .switch { width: 100%; justify-content: center; }
+  .switch { justify-content: space-between; }
+  .tabs {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 0; padding: 6px;
+    border-radius: 22px; background: rgba(255,255,255,.1); overflow: visible;
+  }
+  .tabs .pill { display: none; }
+  .tab {
+    text-align: left; padding: 13px 18px; font-size: 15px; border-radius: 16px;
+  }
+  .tab.active { background: #fff; color: var(--head-2); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+
+  main { max-width: none; margin: 0 0 0 272px; padding: 40px 48px 72px; }
+  .section-head { margin-bottom: 24px; }
+  .section-head h2 { font-size: 28px; }
+  .section-head .meta { font-size: 14px; }
+
+  .week-col { min-height: 480px; border-radius: 28px 28px 22px 22px; }
+  .week-head { padding: 18px 18px 22px; }
+
+  .subjects { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
+
+  .cal { border-radius: 28px; }
+  .cal-dow { padding: 12px; font-size: 12px; }
+  .cal-day { min-height: 140px; padding: 10px; gap: 6px; }
+  .cal-num { font-size: 14px; width: 30px; height: 30px; }
+  .chip { font-size: 13px; padding: 5px 10px; }
+  .cal-evt { font-size: 10px; }
+  .cal-leyenda { justify-content: flex-start; margin: 16px 8px 8px; font-size: 13px; }
+  .subhead { margin-top: 36px; font-size: 14px; }
+  .evt-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 14px; }
+  .evt-row { padding: 14px 16px; }
+  .evt-label { font-size: 16px; }
+  .cal-nota { margin-top: 14px; font-size: 13px; }
+
+  dialog { width: min(640px, calc(100vw - 96px)); }
+}
