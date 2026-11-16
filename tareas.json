@@ -47,14 +47,6 @@
       "descripcion": "si q w"
     },
     {
-      "id": "mwe773kge8a2i",
-      "creada": "2026-11-12T23:47:39.857Z",
-      "titulo": "Página 191 a la 193",
-      "materia": "Español",
-      "entrega": "2026-11-16",
-      "descripcion": "Son los ejercicios de gramática"
-    },
-    {
       "id": "mwe78k7qav06o",
       "creada": "2026-11-12T23:48:48.086Z",
       "titulo": "Resolver los dos ejercicios de balance patrimonial que dejó",
@@ -77,12 +69,20 @@
       "materia": "Matemáticas",
       "entrega": "2026-11-18",
       "descripcion": ""
+    },
+    {
+      "id": "mwjfuoqwc2sto",
+      "creada": "2026-11-16T15:48:48.200Z",
+      "titulo": "Página 191 a la 193",
+      "materia": "Español",
+      "entrega": "2026-11-17",
+      "descripcion": "Son los ejercicios de gramática"
     }
   ],
   "sorpresa": {
     "emoji": "🖕🖕",
-    "titulo": "linchen a camila",
-    "mensaje": "linchen a camila",
+    "titulo": "linchen a camila y mateo negro",
+    "mensaje": "mm valiendo verga",
     "color": "#4f46e5"
   },
   "suspensiones": []
