@@ -78,6 +78,10 @@ html.no-blur { --topbar-bg: linear-gradient(125deg, var(--head-1) 0%, var(--head
 .topbar .blob { will-change: transform; animation: drift 14s ease-in-out infinite; }
 .topbar .b2 { animation-duration: 18s; animation-name: drift-alt; }
 .topbar .b3 { animation-duration: 11s; }
+.topbar .b4 { animation-duration: 16s; animation-name: drift-alt; }
+.topbar .b5 { animation-duration: 20s; }
+.topbar .b6 { animation-duration: 9s; animation-name: drift-alt; }
+.topbar .b4, .topbar .b5, .topbar .b6, .topbar .ring.r2 { display: none; }
 .topbar .blob { position: absolute; pointer-events: none; opacity: .55; }
 .topbar .b1 {
   width: 260px; height: 220px; right: -60px; top: -90px; background: var(--blob-a);
@@ -521,14 +525,22 @@ button, .cal-day { -webkit-tap-highlight-color: transparent; touch-action: manip
    Barra lateral fija con la marca, los botones y las pestañas en vertical;
    el contenido ocupa el resto con más aire. El móvil no cambia. */
 @media (min-width: 1024px) {
+  /* Figuras de la barra lateral: capa propia con blur, más formas y deriva */
+  .figuras { position: absolute; inset: 0; pointer-events: none; overflow: hidden; filter: blur(22px) saturate(1.2); }
+  .figuras .blob { will-change: transform; opacity: .42; }
+  .topbar .b2 { display: block; width: 170px; height: 150px; right: -40px; bottom: 90px; }
+  .topbar .b3 { display: block; width: 130px; height: 120px; left: -50px; top: 36%; }
+  .topbar .b4 { display: block; position: absolute; width: 110px; height: 96px; right: 30px; top: 42%; background: var(--blob-b); border-radius: 46% 54% 38% 62% / 52% 36% 64% 48%; }
+  .topbar .b5 { display: block; position: absolute; width: 190px; height: 160px; left: -80px; bottom: -60px; background: var(--blob-a); border-radius: 60% 40% 55% 45% / 45% 60% 40% 55%; opacity: .3; }
+  .topbar .b6 { display: block; position: absolute; width: 80px; height: 74px; right: 60px; bottom: 210px; background: var(--blob-c); border-radius: 30% 70% 60% 40% / 50% 40% 60% 50%; opacity: .5; }
+  .topbar .ring.r2 { display: block; position: absolute; width: 56px; height: 56px; right: 26px; top: 22%; border-width: 9px; }
   .topbar {
     position: fixed; top: 0; left: 0; bottom: 0; width: 272px; z-index: 5;
     display: flex; flex-direction: column; border-radius: 0 32px 32px 0; overflow: hidden;
     animation-name: bar-in-side;
   }
-  .topbar .blob, .topbar .ring { opacity: .18; }
-  .topbar .b2, .topbar .b3 { display: none; }
-  .topbar .b1 { width: 320px; height: 260px; right: -170px; top: -110px; }
+  .topbar .b1 { width: 320px; height: 260px; right: -170px; top: -110px; opacity: .4; }
+  .topbar .ring { opacity: .6; }
   .topbar-inner {
     position: relative; z-index: 1; max-width: none; margin: 0; height: 100%; overflow-y: auto;
     display: flex; flex-direction: column; gap: 28px; box-sizing: border-box;

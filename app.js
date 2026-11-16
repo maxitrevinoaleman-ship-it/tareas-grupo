@@ -323,7 +323,7 @@
     const h = hoy();
     app.innerHTML = `
       <header class="topbar">
-        <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="ring"></span>
+        <div class="figuras" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span><span class="blob b5"></span><span class="blob b6"></span><span class="ring"></span><span class="ring r2"></span></div>
         <div class="topbar-inner">
         <div class="title-row">
           <div>
