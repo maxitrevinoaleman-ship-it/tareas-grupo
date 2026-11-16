@@ -285,7 +285,7 @@ details summary { cursor: pointer; padding: 8px 0; }
 .evt-lista { padding: 10px; display: grid; gap: 10px; background: transparent; box-shadow: none; border: 0; }
 .evt-row {
   display: flex; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 20px;
-  background: color-mix(in srgb, var(--e) 10%, var(--surface));
+  background: color-mix(in srgb, var(--e) 10%, var(--glass-bg));
   border: 1px solid color-mix(in srgb, var(--e) 26%, transparent);
   transition: transform .45s var(--spring), box-shadow .3s var(--ease);
 }
@@ -454,6 +454,22 @@ dialog:not([open])::backdrop { background-color: rgba(17, 15, 45, 0); }
   body::before { background: radial-gradient(closest-side, var(--blob-c), transparent); }
   body::after { background: radial-gradient(closest-side, var(--blob-a), transparent); }
   .btn-ghost-light { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Cristal: contenedores grandes con superficie translúcida y blur del fondo.
+   No se aplica a celdas ni tarjetas individuales para no multiplicar el costo de render.
+   Con el interruptor de blur apagado o con reducir transparencias, vuelven a ser sólidos. */
+:root { --glass-bg: color-mix(in srgb, var(--surface) 62%, transparent); --glass-blur: 12px; }
+@media (min-width: 1024px) { :root { --glass-blur: 18px; } }
+html.no-blur { --glass-bg: var(--surface); --glass-blur: 0px; }
+.panel, dialog { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); }
+.tabs, .evt-row, .notice:not(.warn) { backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); }
+html.no-blur .panel, html.no-blur dialog, html.no-blur .tabs, html.no-blur .evt-row, html.no-blur .notice {
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass-bg: var(--surface); --glass-blur: 0px; }
+  .panel, dialog, .tabs, .evt-row, .notice { backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
 /* Accesibilidad e interacción táctil */
