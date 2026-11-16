@@ -75,6 +75,8 @@ html.no-blur { --topbar-bg: linear-gradient(125deg, var(--head-1) 0%, var(--head
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
   50% { transform: translate(-12px, 14px) rotate(8deg); }
 }
+/* Capa de figuras con blur también en celular (radio menor por costo de render). */
+.figuras { position: absolute; inset: 0; pointer-events: none; overflow: hidden; filter: blur(16px) saturate(1.2); }
 .topbar .blob { will-change: transform; animation: drift 14s ease-in-out infinite; }
 .topbar .b2 { animation-duration: 18s; animation-name: drift-alt; }
 .topbar .b3 { animation-duration: 11s; }
@@ -526,7 +528,7 @@ button, .cal-day { -webkit-tap-highlight-color: transparent; touch-action: manip
    el contenido ocupa el resto con más aire. El móvil no cambia. */
 @media (min-width: 1024px) {
   /* Figuras de la barra lateral: capa propia con blur, más formas y deriva */
-  .figuras { position: absolute; inset: 0; pointer-events: none; overflow: hidden; filter: blur(22px) saturate(1.2); }
+  .figuras { filter: blur(22px) saturate(1.2); }
   .figuras .blob { will-change: transform; opacity: .42; }
   .topbar .b2 { display: block; width: 170px; height: 150px; right: -40px; bottom: 90px; }
   .topbar .b3 { display: block; width: 130px; height: 120px; left: -50px; top: 36%; }
