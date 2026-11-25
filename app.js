@@ -384,6 +384,9 @@
 
   // Días con 3 o más tareas que el usuario abrió en celular (solo sesión; no se guarda).
   const diasAbiertos = new Set();
+  // El colapso es solo para celular/tablet; en PC siempre se muestra la lista completa.
+  const movil = window.matchMedia("(max-width: 1023px)");
+  movil.addEventListener?.("change", () => render());
 
   function vistaSemana() {
     const h = hoy();
@@ -412,12 +415,12 @@
           const s = iso(d);
           const cls = s === h ? " is-today" : s < h ? " is-past" : "";
           const n = porDia[i].length;
-          const colapsable = n >= 3;
+          const colapsable = n >= 3 && movil.matches;
           const abierto = diasAbiertos.has(s);
           const cuerpo = n
             ? `<div class="week-body${colapsable ? " colapsable" : ""}${abierto ? " abierto" : ""}">
-                <div class="task-list">${porDia[i].map(t => tarjeta(t)).join("")}</div>
-                ${colapsable && !abierto ? `<div class="week-more"><span>Toca el encabezado para ver ${n} tareas</span></div>` : ""}
+                <div class="task-list">${(colapsable && !abierto ? porDia[i].slice(0, 2) : porDia[i]).map(t => tarjeta(t)).join("")}</div>
+                ${colapsable && !abierto ? `<div class="week-more" aria-hidden="true"><div class="week-blur">${porDia[i].slice(2).map(t => tarjeta(t)).join("")}</div><span>Toca el encabezado para ver ${n} tareas</span></div>` : ""}
                 ${colapsable && abierto ? `<button class="btn btn-sm week-contraer" data-contraer="${s}">Contraer</button>` : ""}
               </div>`
             : `<div class="week-body"><div class="empty">${s <= h ? "—" : "Sin tareas"}</div></div>`;

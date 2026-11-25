@@ -505,17 +505,21 @@ html.no-blur .panel, html.no-blur dialog, html.no-blur .tabs, html.no-blur .evt-
 @media (max-width: 1023px) {
   .week-head[data-expandir] { cursor: pointer; }
   .week-head[data-expandir]:active { transform: scale(.98); }
-  .week-body.colapsable:not(.abierto) { position: relative; min-height: 230px; }
-  .week-body.colapsable:not(.abierto) .task-list { max-height: 196px; overflow: hidden; }
-  /* Solo la parte inferior se difumina; la parte de arriba queda nítida. */
+  /* Dos tareas nítidas y, debajo, una franja difuminada con las demás + aviso centrado. */
   .week-body.colapsable:not(.abierto) .week-more {
-    position: absolute; left: 0; right: 0; bottom: 0; top: 38%; display: flex; align-items: flex-end; justify-content: center;
-    padding-bottom: 14px; pointer-events: none;
-    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-    background: linear-gradient(transparent, color-mix(in srgb, var(--surface) 55%, transparent) 70%);
-    -webkit-mask-image: linear-gradient(transparent, #000 45%); mask-image: linear-gradient(transparent, #000 45%);
+    display: block; position: relative; height: 150px; overflow: hidden; border-radius: 18px;
+    pointer-events: none; margin-top: 2px;
+  }
+  .week-more .week-blur {
+    display: flex; flex-direction: column; gap: 10px; padding-top: 4px;
+    filter: blur(3px) saturate(.75); opacity: .6;
+  }
+  .week-more::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(transparent 0%, color-mix(in srgb, var(--surface) 80%, transparent) 62%, var(--surface) 100%);
   }
   .week-more span {
+    position: absolute; left: 0; right: 0; bottom: 14px; margin: 0 auto; width: max-content; z-index: 1;
     background: var(--d); color: #fff; font-weight: 800; font-size: 13px; padding: 10px 16px; border-radius: 999px;
     box-shadow: 0 8px 20px color-mix(in srgb, var(--d) 45%, transparent); animation: rise .6s var(--spring) both;
   }
