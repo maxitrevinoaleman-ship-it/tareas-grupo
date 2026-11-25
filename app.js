@@ -415,14 +415,15 @@
           const colapsable = n >= 3;
           const abierto = diasAbiertos.has(s);
           const cuerpo = n
-            ? `<div class="week-body${colapsable ? " colapsable" : ""}${abierto ? " abierto" : ""}"${colapsable && !abierto ? ` data-expandir="${s}" role="button" tabindex="0" aria-label="Ver las ${n} tareas de ${DIAS[i]}"` : ""}>
+            ? `<div class="week-body${colapsable ? " colapsable" : ""}${abierto ? " abierto" : ""}">
                 <div class="task-list">${porDia[i].map(t => tarjeta(t)).join("")}</div>
-                ${colapsable ? `<div class="week-more"><span>Toca para ver ${n} tareas</span></div>` : ""}
+                ${colapsable && !abierto ? `<div class="week-more"><span>Toca el encabezado para ver ${n} tareas</span></div>` : ""}
                 ${colapsable && abierto ? `<button class="btn btn-sm week-contraer" data-contraer="${s}">Contraer</button>` : ""}
               </div>`
             : `<div class="week-body"><div class="empty">${s <= h ? "—" : "Sin tareas"}</div></div>`;
+          const tap = colapsable && !abierto ? ` data-expandir="${s}" role="button" tabindex="0" aria-label="Ver las ${n} tareas de ${DIAS[i]}"` : "";
           return `<div class="week-col${cls}" style="--d:${DIA_COLORES[i]}">
-            <div class="week-head"><div class="day">${DIAS[i]}</div><div class="date">${d.getDate()} de ${MESES[d.getMonth()]}</div><div class="num">${d.getDate()}</div></div>
+            <div class="week-head"${tap}><div class="day">${DIAS[i]}</div><div class="date">${d.getDate()} de ${MESES[d.getMonth()]}</div><div class="num">${d.getDate()}</div></div>
             ${cuerpo}
           </div>`;
         }).join("")}
