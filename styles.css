@@ -497,6 +497,28 @@ html.no-blur .panel, html.no-blur dialog, html.no-blur .tabs, html.no-blur .evt-
   .panel, dialog, .tabs, .evt-row, .notice { backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
 
+/* Semana: días con 3+ tareas se muestran contraídos y desenfocados en celular/tablet; toca el día para verlas. */
+.week-more { display: none; }
+.week-contraer { align-self: center; }
+.task-list { display: flex; flex-direction: column; gap: 10px; }
+@media (min-width: 1024px) { .week-contraer { display: none; } }
+@media (max-width: 1023px) {
+  .week-body.colapsable:not(.abierto) { position: relative; cursor: pointer; min-height: 230px; }
+  .week-body.colapsable:not(.abierto) .task-list {
+    max-height: 196px; overflow: hidden; filter: blur(2.5px) saturate(.8); opacity: .72; pointer-events: none;
+    -webkit-mask-image: linear-gradient(#000 40%, transparent 96%); mask-image: linear-gradient(#000 40%, transparent 96%);
+  }
+  .week-body.colapsable:not(.abierto) .week-more {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(transparent 22%, color-mix(in srgb, var(--surface) 70%, transparent) 80%);
+  }
+  .week-more span {
+    background: var(--d); color: #fff; font-weight: 800; font-size: 13px; padding: 10px 16px; border-radius: 999px;
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--d) 45%, transparent); animation: rise .6s var(--spring) both;
+  }
+  .week-body.colapsable:not(.abierto):active .week-more span { transform: scale(.96); }
+}
+
 /* Accesibilidad e interacción táctil */
 button, .cal-day { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }

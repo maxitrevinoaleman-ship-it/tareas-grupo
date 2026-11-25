@@ -382,6 +382,9 @@
     return vistaSemana();
   }
 
+  // Días con 3 o más tareas que el usuario abrió en celular (solo sesión; no se guarda).
+  const diasAbiertos = new Set();
+
   function vistaSemana() {
     const h = hoy();
     const lunes = sumarDias(lunesDe(new Date()), estado.semana * 7);
@@ -408,9 +411,19 @@
           if (!visibles[i]) return "";
           const s = iso(d);
           const cls = s === h ? " is-today" : s < h ? " is-past" : "";
+          const n = porDia[i].length;
+          const colapsable = n >= 3;
+          const abierto = diasAbiertos.has(s);
+          const cuerpo = n
+            ? `<div class="week-body${colapsable ? " colapsable" : ""}${abierto ? " abierto" : ""}"${colapsable && !abierto ? ` data-expandir="${s}" role="button" tabindex="0" aria-label="Ver las ${n} tareas de ${DIAS[i]}"` : ""}>
+                <div class="task-list">${porDia[i].map(t => tarjeta(t)).join("")}</div>
+                ${colapsable ? `<div class="week-more"><span>Toca para ver ${n} tareas</span></div>` : ""}
+                ${colapsable && abierto ? `<button class="btn btn-sm week-contraer" data-contraer="${s}">Contraer</button>` : ""}
+              </div>`
+            : `<div class="week-body"><div class="empty">${s <= h ? "—" : "Sin tareas"}</div></div>`;
           return `<div class="week-col${cls}" style="--d:${DIA_COLORES[i]}">
             <div class="week-head"><div class="day">${DIAS[i]}</div><div class="date">${d.getDate()} de ${MESES[d.getMonth()]}</div><div class="num">${d.getDate()}</div></div>
-            <div class="week-body">${porDia[i].length ? porDia[i].map(t => tarjeta(t)).join("") : `<div class="empty">${s <= h ? "—" : "Sin tareas"}</div>`}</div>
+            ${cuerpo}
           </div>`;
         }).join("")}
       </div>`;
@@ -778,6 +791,18 @@
     const ahora = Date.now();
     toquesTitulo = toquesTitulo.filter(t => ahora - t < 2000).concat(ahora);
     if (toquesTitulo.length >= 4) { toquesTitulo = []; mostrarSorpresa(); }
+  });
+
+  // ---------- semana: abrir y contraer días con varias tareas ----------
+  app.addEventListener("click", e => {
+    const ex = e.target.closest("[data-expandir],[data-contraer]");
+    if (!ex) return;
+    const d = ex.dataset;
+    if (d.expandir) diasAbiertos.add(d.expandir); else diasAbiertos.delete(d.contraer);
+    render();
+  });
+  app.addEventListener("keydown", e => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-expandir]")) { e.preventDefault(); diasAbiertos.add(e.target.dataset.expandir); render(); }
   });
 
   // ---------- eventos ----------
