@@ -35,6 +35,10 @@
     {
       "nombre": "Robótica",
       "color": "#a21caf"
+    },
+    {
+      "nombre": "prueba",
+      "color": "#be123c"
     }
   ],
   "tareas": [
