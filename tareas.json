@@ -35,6 +35,10 @@
     {
       "nombre": "Robótica",
       "color": "#a21caf"
+    },
+    {
+      "nombre": "prueba",
+      "color": "#be123c"
     }
   ],
   "tareas": [
@@ -77,6 +81,62 @@
       "materia": "Español",
       "entrega": "2026-11-17",
       "descripcion": "Son los ejercicios de gramática"
+    },
+    {
+      "id": "mwmorwf0hk07t",
+      "creada": "2026-11-18T22:21:53.244Z",
+      "titulo": "Entregar ejercicios libreta",
+      "materia": "Matemáticas",
+      "entrega": "2026-11-19",
+      "descripcion": ""
+    },
+    {
+      "id": "mwmskqwyqc8ur",
+      "creada": "2026-11-19T00:08:17.986Z",
+      "titulo": "Terminar act. De quimica",
+      "materia": "Química",
+      "entrega": "2026-11-19",
+      "descripcion": ""
+    },
+    {
+      "id": "mwmslian607st",
+      "creada": "2026-11-19T00:08:53.472Z",
+      "titulo": "Hacer práctica 1",
+      "materia": "Robótica",
+      "entrega": "2026-11-19",
+      "descripcion": ""
+    },
+    {
+      "id": "mwwr6nx2sz8sm",
+      "creada": "2026-11-25T23:27:03.062Z",
+      "titulo": "Terminar ejercicios libreta",
+      "materia": "Matemáticas",
+      "entrega": "2026-11-26",
+      "descripcion": "Háganlo q cada una da una décima"
+    },
+    {
+      "id": "mwwr79amrtd1l",
+      "creada": "2026-11-25T23:27:30.766Z",
+      "titulo": "Terminar ejercicios libreta",
+      "materia": "Química",
+      "entrega": "2026-11-26",
+      "descripcion": ""
+    },
+    {
+      "id": "mwwr9w958auum",
+      "creada": "2026-11-25T23:29:33.833Z",
+      "titulo": "Hacer mapa conceptual en cartulina de todo lo visto",
+      "materia": "Educación Financiera",
+      "entrega": "2026-12-01",
+      "descripcion": "Háganlo 👀😭"
+    },
+    {
+      "id": "mwwrjsnpdwp3s",
+      "creada": "2026-11-25T23:37:15.733Z",
+      "titulo": "prueba",
+      "materia": "prueba",
+      "entrega": "2026-11-26",
+      "descripcion": ""
     }
   ],
   "sorpresa": {
